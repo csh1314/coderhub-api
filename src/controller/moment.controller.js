@@ -10,9 +10,8 @@ const {
 class MomentController {
     async create(ctx, next) {
         // 1.获取数据(user_id, content)
-        const userId = ctx.user.id;
+        const userId = ctx.userInfo.id;
         const content = ctx.request.body.content;
-        console.log(userId,content);
         // 2，将数据插入到数据库
         const result = await momentService.create(userId, content);
         ctx.body = result;
@@ -21,7 +20,6 @@ class MomentController {
     async list(ctx, next) {
         // 1.获取数据(offset/size)
         const { offset, size } =ctx.query;
-
         // 2.查询列表
         const result = await momentService.getMomentList(offset, size);
         ctx.body = result;
@@ -64,6 +62,35 @@ class MomentController {
             statusCode:200,
             message:"给动态添加标签成功~"
         };
+    }
+    async approval(ctx, next){
+        // 1.得到动态和用户id
+        const { momentId } = ctx.params;
+        const userId = ctx.userInfo.id;
+        // 2.判断是否已点赞
+        const isApproval = await momentService.isApproval(userId, momentId);
+        if(!isApproval){
+            await momentService.approval(userId, momentId);
+        }else{
+           // 已点赞 -> 取消点赞
+            await momentService.cancelApproval(userId, momentId);
+        }
+        ctx.body = {
+            statusCode:200,
+            message:"操作成功~",
+            data:!isApproval
+        }
+    }
+    async isApproval(ctx, next) {
+        // 1.得到动态和用户id
+        const { momentId } = ctx.params;
+        const userId = ctx.userInfo.id;
+         // 2.是否已点赞
+        const isApproval = await momentService.isApproval(userId, momentId);
+        ctx.body = {
+            statusCode:200,
+            data:isApproval
+        }
     }
     async pictureInfo(ctx, next) {
         // 1.通过 filename 得到文件信息

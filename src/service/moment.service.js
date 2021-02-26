@@ -14,7 +14,9 @@ const BASE_URL = `${APP_HOST}:${APP_PORT}`;
 
 class MomentService {
     async create(userId, content) {
-        const statement = `INSERT INTO MOMENT (content, user_id) VALUES (? ,?);`;
+        const statement = `
+            INSERT INTO moment (content, user_id) VALUES (? ,?);
+        `;
         const [result] = await connection.execute(statement, [content, userId]);
         return result;
     }
@@ -25,6 +27,7 @@ class MomentService {
                 JSON_OBJECT('id', u.id, 'name', u.name, 'avatarUrl', u.avatar_url) author,
                 (SELECT COUNT(*) FROM comment c WHERE c.moment_id = m.id) commentCount,
                 (SELECT COUNT(*) FROM moment_label mo WHERE ml.moment_id = m.id) labelCount,
+                (SELECT COUNT(*) FROM approval WHERE approval.moment_id = m.id) approvalCount,
                 IF(COUNT(l.id), JSON_ARRAYAGG(
                         JSON_OBJECT('id', l.id, 'name', l.name)
                 ), NULL) labels,
@@ -94,6 +97,27 @@ class MomentService {
             INSERT INTO moment_label (moment_id, label_id) VALUES (?, ?);
         `;
         const [result] = await connection.execute(statement, [momentId, labelId]);
+        return result;
+    }
+    async isApproval(userId, momentId) {
+        const statement = `
+            SELECT * FROM approval WHERE user_id = ? AND moment_id = ?;
+        `;
+        const [result] = await connection.execute(statement, [userId, momentId]);
+        return result[0] ? true : false;
+    }
+    async approval(userId, momentId) {
+        const statement = `
+            INSERT INTO approval (user_id, moment_id) VALUES (?, ?);
+        `;
+        const [result] = await connection.execute(statement, [userId, momentId]);
+        return result;
+    }
+    async cancelApproval(userId, momentId) {
+        const statement = `
+            DELETE FROM approval WHERE user_id = ? AND moment_id = ?;
+        `;
+        const [result] = await connection.execute(statement, [userId, momentId]);
         return result;
     }
 }

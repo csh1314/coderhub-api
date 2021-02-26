@@ -11,6 +11,6 @@ const {
     verifyAuth
 } = require('../middleware/auth.middleware.js')
 authRouter.post('/login', verifyLogin, login)
-authRouter.get('/test', verifyAuth, success)
+authRouter.get('/authorization', verifyAuth, success)
 
 module.exports = authRouter;

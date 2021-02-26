@@ -3,8 +3,11 @@ const labelService = require('../service/label.service');
 class LabelController{
     async create(ctx, next) {
         const { name } = ctx.request.body;
-        const result = await labelService.create(name);
-        ctx.body = result;
+        await labelService.create(name);
+        ctx.body = {
+            statusCode:20000,
+            message:'创建成功~'    
+        };
     }
     async list(ctx, next) {
         const {limit, offset} = ctx.query;

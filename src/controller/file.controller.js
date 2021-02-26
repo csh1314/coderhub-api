@@ -1,4 +1,3 @@
-
 const fileService = require('../service/file.service');
 const userService = require('../service/user.service');
 const { APP_HOST, APP_PORT } = require('../app/config');
@@ -6,7 +5,7 @@ const addExtname = require('../utils/file-addExtname');
 
 class FileController {
     async saveAvatarInfo(ctx, next) {
-        const { id } = ctx.user;
+        const { id } = ctx.userInfo;
         // 1.得到图像信息
         const { mimetype, size} = ctx.req.file;
         const newFilename = await addExtname(ctx.req.file);
@@ -15,16 +14,17 @@ class FileController {
         // 3.更新用户表中的avatar_url
         const avatarUrl = `${APP_HOST}:${APP_PORT}/users/${id}/avatar/${newFilename}`;
         await userService.updateUserAvatar(avatarUrl, id);
+        console.log(avatarUrl)
         ctx.body = {
-            statusCode: 200,
+            statusCode: 20000,
             message: "上传成功~",
             avatarUrl: avatarUrl
         }
     }
     async savePicturesInfo(ctx, next) {
         // 1.获取文件信息
-        const { momentId } = ctx.query;
-        const { id } = ctx.user;
+        const { momentId } = ctx.req.body;
+        const { id } = ctx.userInfo;
         const files = ctx.req.files;
         // 2.将所有文件信息保存
         for(let file of files){

@@ -46,7 +46,10 @@ const verifyAuth = async (ctx, next) => {
         const result = jwt.verify(token, PUBLIC_KEY, {
             algorithms: ["RS256"]
         });
-        ctx.user = result;
+        const { name } = result;
+        const [userInfo] = await userService.getUserByName(name);
+        ctx.userInfo = userInfo;
+        ctx.token = authorization;
         await next();
     } catch (err) {
         const error = new Error(errorType.UNAUTHORIZATION);
@@ -63,7 +66,7 @@ const verifyPermission = async (ctx, next) => {
     const [ resourceKey ] = Object.keys(ctx.params);
     const tableName = resourceKey.replace('Id','');
     const resourceId = ctx.params[resourceKey];
-    const { id } = ctx.user;
+    const { id } = ctx.userInfo;
 
     // 2.查询是否具备权限
     try {

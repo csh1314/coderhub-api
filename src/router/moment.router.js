@@ -9,6 +9,8 @@ const {
     update,
     remove,
     addLabels,
+    approval,
+    isApproval,
     pictureInfo
 } = require('../controller/moment.controller');
 const {
@@ -31,6 +33,12 @@ momentRouter.delete('/:momentId', verifyAuth, verifyPermission, remove);
 
 // 给动态添加标签
 momentRouter.post('/:momentId/labels', verifyAuth, verifyPermission, verifyLabelExists, addLabels);
+
+// 给动态点赞/取消点赞
+momentRouter.post('/:momentId/approval', verifyAuth, approval)
+
+// 查看是否已赞
+momentRouter.get('/:momentId/isApproval', verifyAuth, isApproval)
 
 // 得到动态配图
 momentRouter.get('/images/:filename', pictureInfo);

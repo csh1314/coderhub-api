@@ -18,6 +18,6 @@ const {
 
 // 上传头像
 fileRouter.post('/avatar', verifyAuth, avatarHandler, saveAvatarInfo);
-
+// 上传配图
 fileRouter.post('/pictures', verifyAuth, picturesHandler, picturesResize, savePicturesInfo);
 module.exports = fileRouter;
